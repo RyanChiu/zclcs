@@ -48,11 +48,11 @@ def main(stdscr):
                 elif ch == ord('u'):
                         mvfcs(-1)
                         scrolllines(stdscr, 0)
-			shw_status(stdscr)
+			shw_status(stdscr, "file")
                 elif ch == ord('j'):
                         mvfcs(1)
                         scrolllines(stdscr, 0)
-			shw_status(stdscr)
+			shw_status(stdscr, "file")
 		elif ch in (curses.KEY_ENTER, 10):
 			continue
 		else:
@@ -96,16 +96,23 @@ def get_fcsline():
 def exp_line(skp, fcs, txt, dcr, phn, fln):
 	lines.append({"skp" : skp, "fcs" : fcs, "txt" : txt, "dcr" : dcr, "phn" : phn, "fln" : fln})
 
-def shw_status(stdscr):
-	if fcsidx < 0 or fcsidx >= (len(lines) - 1):
+def shw_status(stdscr, mode):
+	if mode == "file":
+		if fcsidx < 0 or fcsidx >= (len(lines) - 1):
+			return
+		line = get_fcsline()
+		mva_bottom(stdscr, "\"{}\"".format(line['phn'] + line['fln']))
+	elif mode == "":
 		return
+
+def mva_bottom(stdscr, txt):
 	yx = stdscr.getmaxyx()
-	line = get_fcsline()
 	l = ""
 	for i in range(0, yx[1] - 1):
 		l += " "
 	stdscr.addstr(yx[0] - 1, 0, l)
-	stdscr.addstr(yx[0] - 1, 0, "\"{}\"".format(line['phn'] + line['fln']))
+	stdscr.addstr(yx[0] - 1, 0, txt)
+	
 
 def mvfcs(step):
         global fcsidx
