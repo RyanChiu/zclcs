@@ -48,13 +48,13 @@ def main(stdscr):
                 elif ch == ord('u'):
                         mvfcs(-1)
                         scrolllines(stdscr, 0)
+			shw_status(stdscr)
                 elif ch == ord('j'):
                         mvfcs(1)
                         scrolllines(stdscr, 0)
+			shw_status(stdscr)
 		elif ch in (curses.KEY_ENTER, 10):
-                	yx = stdscr.getmaxyx()
-			line = get_fcsline()
-			stdscr.addstr(yx[0] - 1, 0, "\"{}\"".format(line['phn'] + line['fln']))
+			continue
 		else:
                         continue
 
@@ -95,6 +95,17 @@ def get_fcsline():
 
 def exp_line(skp, fcs, txt, dcr, phn, fln):
 	lines.append({"skp" : skp, "fcs" : fcs, "txt" : txt, "dcr" : dcr, "phn" : phn, "fln" : fln})
+
+def shw_status(stdscr):
+	if fcsidx < 0 or fcsidx >= (len(lines) - 1):
+		return
+	yx = stdscr.getmaxyx()
+	line = get_fcsline()
+	l = ""
+	for i in range(0, yx[1] - 1):
+		l += " "
+	stdscr.addstr(yx[0] - 1, 0, l)
+	stdscr.addstr(yx[0] - 1, 0, "\"{}\"".format(line['phn'] + line['fln']))
 
 def mvfcs(step):
         global fcsidx
