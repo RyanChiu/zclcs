@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys, locale, curses
+import os, sys, locale, curses, shutil
 from curses import wrapper
 
 locale.setlocale(locale.LC_ALL, '')
@@ -10,6 +10,7 @@ code = locale.getpreferredencoding()
 lines = []
 offsets = [0, 0]
 fcsidx = -1
+pnu = 0
 
 '''
 all kinds of defines in the program
@@ -39,6 +40,10 @@ def main(stdscr):
 
 	while True:
                 ch = stdscr.getch()
+		line = get_fcsline()
+		fn = ""
+		if line != {}:
+			fn = line['phn'] + line['fln']
                 if ch == ord('q'):
                         break
                 elif ch == curses.KEY_UP:
@@ -53,6 +58,53 @@ def main(stdscr):
                         mvfcs(1)
                         scrolllines(stdscr, 0)
 			shw_status(stdscr, "file")
+		elif ch == ord('d'):
+			if not fn:
+				continue
+			mva_bottom(stdscr, "delete it, y/n?")
+			while True:
+				d_ch = stdscr.getch()
+				if d_ch == ord('y'):
+					if os.path.isdir(fn):
+						shutil.rmtree(fn)
+					else:
+						os.remove(fn)
+					del_fcsline()
+					stdscr.clear()
+					scrolllines(stdscr, 0)
+					shw_status(stdscr, "file")
+					break
+				elif d_ch == ord('n'):
+					shw_status(stdscr, "file")
+					break
+				else:
+					mva_bottom(stdscr, "please enter y to make sure, or n to cancel it.")
+		elif ch == ord('m'):
+			if not fn:
+				continue
+			mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.")
+			while True:
+				m_ch = stdscr.getch()
+				if m_ch >= ord('0') and m_ch <= ord('9'):
+					plines = get_pthlines()
+					sidx = int(m_ch) - 48
+					if sidx < len(plines):
+						mva_bottom(stdscr, "move into \"{}\", y/n?".format(plines[sidx]["phn"]))
+				elif m_ch == ord('y'):
+					shutil.move(fn, plines[sidx]["phn"])
+					global lines, pnu
+					lines = []
+					pnu = 0
+					apd_files(CLC_DIRS)
+					apd_files(STMP_DIRS)
+					stdscr.clear()
+					scrolllines(stdscr, 0)
+					break
+				elif m_ch == ord('n'):
+					mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.")
+				elif m_ch == ord('c'):
+					shw_status(stdscr, "file")
+					break
 		elif ch in (curses.KEY_ENTER, 10):
 			continue
 		else:
@@ -79,22 +131,41 @@ def str_hsize(size):
 	return str(round(size / (b+1), 2)) + u
 
 def apd_files(dirs):
+	global pnu
 	for path in dirs:
 		files = os.listdir(path)
-		exp_line(True, False, "in path [" + path + "]:", curses.A_BOLD, "", "")
-		exp_line(True, False, '{0: ^3} {1:85} {2:7}'.format("#", "file name", "size"), curses.A_UNDERLINE, "", "")
+		exp_line(True, False, pnu, "#{0} in path [{1}]:".format(pnu, path), curses.A_BOLD, path, "")
+		exp_line(True, False, -1, '{0: ^3} {1:85} {2:7}'.format("#", "file name", "size"), curses.A_UNDERLINE, "", "")
 		i = 0
 		for fn in files:
-			exp_line(False, False, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(fn, 80), str_hsize(os.path.getsize(path + fn))), 0, path, fn)
+			exp_line(False, False, pnu, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(fn, 80), str_hsize(os.path.getsize(path + fn))), 0, path, fn)
 			i += 1
+		pnu += 1
 
 def get_fcsline():
 	for line in lines:
 		if line['fcs'] and not line['skp']:
 			return line
+	return {}
 
-def exp_line(skp, fcs, txt, dcr, phn, fln):
-	lines.append({"skp" : skp, "fcs" : fcs, "txt" : txt, "dcr" : dcr, "phn" : phn, "fln" : fln})
+def get_pthlines():
+	plines = []
+	for line in lines:
+		if line['pnu'] != -1 and line['phn'] != "" and line['fln'] == "":
+			plines.append(line)
+	return plines
+
+def del_line(idx):
+	if idx < 0 and idx >= (len(lines) - 1):
+		return
+	del lines[idx]
+
+def del_fcsline():
+	del_line(fcsidx)
+	mvfcs(1)
+
+def exp_line(skp, fcs, pnu, txt, dcr, phn, fln):
+	lines.append({"skp" : skp, "fcs" : fcs, "pnu" : pnu, "txt" : txt, "dcr" : dcr, "phn" : phn, "fln" : fln})
 
 def shw_status(stdscr, mode):
 	if mode == "file":
