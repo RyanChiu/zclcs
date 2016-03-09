@@ -170,7 +170,7 @@ def exp_line(skp, fcs, pnu, txt, dcr, phn, fln):
 
 def shw_status(stdscr, mode):
 	if mode == "file":
-		if fcsidx < 0 or fcsidx >= (len(lines) - 1):
+		if fcsidx < 0 or fcsidx >= len(lines):
 			return
 		line = get_fcsline()
 		mva_bottom(stdscr, "\"{}\"".format(os.path.join(line['phn'], line['fln'])))
