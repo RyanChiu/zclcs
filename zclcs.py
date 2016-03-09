@@ -1,11 +1,17 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys, locale, curses, shutil
+import os, sys, locale, curses, shutil, ConfigParser
 from curses import wrapper
 
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
+config = ConfigParser.ConfigParser()
+config.read("./zclcs.conf")
+items = config.items("DIRS")
+DIRS = []
+for item in items:
+	DIRS.append(item[1])
 
 lines = []
 offsets = [0, 0]
@@ -15,15 +21,12 @@ pnu = 0
 '''
 all kinds of defines in the program
 '''
-CLC_DIRS = {
-	'/media/40G/mldonkey-downloads/lib/incoming/files/',
-	'/media/40G/rtorrent-downloads/files/'
-}
-
-STMP_DIRS = {
-	'/media/40G/.stmp/',
-	'/media/40G/TDDOWNLOAD/.stmp/'
-}
+#DIRS = {
+	#D'/media/40G/mldonkey-downloads/lib/incoming/files/',
+	#D'/media/40G/rtorrent-downloads/files/',
+	#D'/media/40G/.stmp/',
+	#D'/media/40G/TDDOWNLOAD/.stmp/'
+#}
 
 '''
 the main pgrogram here
@@ -33,8 +36,7 @@ def main(stdscr):
 	stdscr.clear()
 
 	# do the show off stuff below
-	apd_files(CLC_DIRS)
-	apd_files(STMP_DIRS)
+	apd_files(DIRS)
 
 	scrolllines(stdscr, 0)
 
@@ -43,7 +45,7 @@ def main(stdscr):
 		line = get_fcsline()
 		fn = ""
 		if line != {}:
-			fn = line['phn'] + line['fln']
+			fn = os.path.join(line['phn'], line['fln'])
                 if ch == ord('q'):
                         break
                 elif ch == curses.KEY_UP:
@@ -95,8 +97,7 @@ def main(stdscr):
 					global lines, pnu
 					lines = []
 					pnu = 0
-					apd_files(CLC_DIRS)
-					apd_files(STMP_DIRS)
+					apd_files(DIRS)
 					stdscr.clear()
 					scrolllines(stdscr, 0)
 					break
@@ -138,7 +139,7 @@ def apd_files(dirs):
 		exp_line(True, False, -1, '{0: ^3} {1:85} {2:7}'.format("#", "file name", "size"), curses.A_UNDERLINE, "", "")
 		i = 0
 		for fn in files:
-			exp_line(False, False, pnu, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(fn, 80), str_hsize(os.path.getsize(path + fn))), 0, path, fn)
+			exp_line(False, False, pnu, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(fn, 80), str_hsize(os.path.getsize(os.path.join(path, fn)))), 0, path, fn)
 			i += 1
 		pnu += 1
 
@@ -172,7 +173,7 @@ def shw_status(stdscr, mode):
 		if fcsidx < 0 or fcsidx >= (len(lines) - 1):
 			return
 		line = get_fcsline()
-		mva_bottom(stdscr, "\"{}\"".format(line['phn'] + line['fln']))
+		mva_bottom(stdscr, "\"{}\"".format(os.path.join(line['phn'], line['fln'])))
 	elif mode == "":
 		return
 
