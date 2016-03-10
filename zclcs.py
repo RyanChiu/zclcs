@@ -6,6 +6,7 @@ from curses import wrapper
 
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
+
 config = ConfigParser.ConfigParser()
 config.read("./zclcs.conf")
 items = config.items("DIRS")
@@ -13,25 +14,21 @@ DIRS = []
 for item in items:
 	DIRS.append(item[1])
 
+'''
+all kinds of defines in the program
+'''
 lines = []
 offsets = [0, 0]
 fcsidx = -1
 pnu = 0
 
 '''
-all kinds of defines in the program
-'''
-#DIRS = {
-	#D'/media/40G/mldonkey-downloads/lib/incoming/files/',
-	#D'/media/40G/rtorrent-downloads/files/',
-	#D'/media/40G/.stmp/',
-	#D'/media/40G/TDDOWNLOAD/.stmp/'
-#}
-
-'''
 the main pgrogram here
 '''
 def main(stdscr):
+	curses.init_pair(1, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+	curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+
 	# clear screen
 	stdscr.clear()
 
@@ -135,7 +132,7 @@ def apd_files(dirs):
 	global pnu
 	for path in dirs:
 		files = os.listdir(path)
-		exp_line(True, False, pnu, "#{0} in path [{1}]:".format(pnu, path), curses.A_BOLD, path, "")
+		exp_line(True, False, pnu, "#{0} in path [{1}]:".format(pnu, path), curses.color_pair(2), path, "")
 		exp_line(True, False, -1, '{0: ^3} {1:85} {2:7}'.format("#", "file name", "size"), curses.A_UNDERLINE, "", "")
 		i = 0
 		for fn in files:
@@ -223,14 +220,16 @@ def scrolllines(scr, step):
                 h = len(lines) - offsets[0]
         y = 0
         for i in range(offsets[0], h):
-                t = "";
+                t = ""
+		t_dcr = lines[i]['dcr']
                 if lines[i]['fcs']:
                         t = "[*]"
+			t_dcr = curses.A_BOLD
 		if yx[1] > (300 - 5):
-                	scr.addstr(y, 0, "{0: ^5} {1:300}".format(t, lines[i]['txt']), lines[i]['dcr'])
+                	scr.addstr(y, 0, "{0:3} {1:300}".format(t, lines[i]['txt']), t_dcr)
 		else:
 			w = yx[1] - 5
-			scr.addstr(y, 0, "{0: ^5} {1}".format(t, tnc_filename(lines[i]['txt'], w)), lines[i]['dcr'])
+			scr.addstr(y, 0, "{0:3} {1}".format(t, tnc_filename(lines[i]['txt'], w)), t_dcr)
                 y += 1
 
 wrapper(main)
