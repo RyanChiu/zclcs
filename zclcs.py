@@ -26,8 +26,8 @@ pnu = 0
 the main pgrogram here
 '''
 def main(stdscr):
-	curses.init_pair(1, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
-	curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+	curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
+	curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
 	# clear screen
 	stdscr.clear()
@@ -132,11 +132,15 @@ def apd_files(dirs):
 	global pnu
 	for path in dirs:
 		files = os.listdir(path)
-		exp_line(True, False, pnu, "#{0} in path [{1}]:".format(pnu, path), curses.color_pair(2), path, "")
+		exp_line(True, False, pnu, "#{0} in path [{1}]:".format(pnu, path), curses.color_pair(1), path, "")
 		exp_line(True, False, -1, '{0: ^3} {1:85} {2:7}'.format("#", "file name", "size"), curses.A_UNDERLINE, "", "")
 		i = 0
-		for fn in files:
-			exp_line(False, False, pnu, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(fn, 80), str_hsize(os.path.getsize(os.path.join(path, fn)))), 0, path, fn)
+		for f in files:
+			fn = os.path.join(path, f)
+			f_dcr = 0
+			if os.path.isdir(fn):
+				f_dcr = curses.color_pair(2)
+			exp_line(False, False, pnu, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(f, 80), str_hsize(os.path.getsize(fn))), f_dcr, path, f)
 			i += 1
 		pnu += 1
 
@@ -180,8 +184,7 @@ def mva_bottom(stdscr, txt):
 	for i in range(0, yx[1] - 1):
 		l += " "
 	stdscr.addstr(yx[0] - 1, 0, l)
-	stdscr.addstr(yx[0] - 1, 0, txt)
-	
+	stdscr.addstr(yx[0] - 1, 0, txt, curses.A_REVERSE)
 
 def mvfcs(step):
         global fcsidx
@@ -218,6 +221,7 @@ def scrolllines(scr, step):
         h = offsets[0] + yx[0]
         if h > len(lines):
                 h = len(lines) - offsets[0]
+	h -= 1
         y = 0
         for i in range(offsets[0], h):
                 t = ""
