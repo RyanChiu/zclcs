@@ -103,6 +103,8 @@ def main(stdscr):
 				elif m_ch == ord('c'):
 					shw_status(stdscr, "file")
 					break
+		elif ch == curses.KEY_F5:
+			scrolllines(stdscr, 0)
 		elif ch in (curses.KEY_ENTER, 10):
 			continue
 		else:
