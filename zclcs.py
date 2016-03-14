@@ -105,6 +105,8 @@ def main(stdscr):
 					break
 		elif ch == curses.KEY_F5:
 			scrolllines(stdscr, 0)
+		elif ch == ord('?'):
+			mva_bottom(stdscr, "'u'/'j' to select,'d' to remove,'m' to move,F5 to refresh,'?' to help,'q' to quit.")
 		elif ch in (curses.KEY_ENTER, 10):
 			continue
 		else:
