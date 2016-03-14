@@ -3,6 +3,7 @@
 
 import os, sys, locale, curses, shutil, ConfigParser
 from curses import wrapper
+from curses.textpad import Textbox
 
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
@@ -20,7 +21,7 @@ all kinds of defines in the program
 lines = []
 offsets = [0, 0]
 fcsidx = -1
-pnu = 0
+pnu = 0 #PATH NUMBER
 
 '''
 the main pgrogram here
@@ -28,7 +29,6 @@ the main pgrogram here
 def main(stdscr):
 	curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
 	curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-	curses.curs_set(0)
 
 	# clear screen
 	stdscr.clear()
@@ -92,16 +92,39 @@ def main(stdscr):
 						mva_bottom(stdscr, "move into \"{}\", y/n?".format(plines[sidx]["phn"]))
 				elif m_ch == ord('y'):
 					shutil.move(fn, plines[sidx]["phn"])
-					global lines, pnu
-					lines = []
-					pnu = 0
-					apd_files(DIRS)
-					stdscr.clear()
-					scrolllines(stdscr, 0)
+					rld_lines(stdscr)
 					break
 				elif m_ch == ord('n'):
 					mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.")
 				elif m_ch == ord('c'):
+					shw_status(stdscr, "file")
+					break
+		elif ch == ord('r'):
+			if not fn:
+				continue
+			mva_bottom(stdscr, "rename it, y/n?(if yes, then edit the new name and fire it with ctrl+g when it's done.)")
+			while True:
+				r_ch = stdscr.getch()
+				if r_ch == ord('y'):
+					r_title = "new name:"
+					yx = stdscr.getmaxyx()
+					mva_bottom(stdscr, r_title)
+					editwin = curses.newwin(1, yx[1] - len(r_title) - 1, yx[0] - 1, len(r_title) + 1)
+					stdscr.refresh()
+					box = Textbox(editwin)
+					# Let the user edit until Ctrl-G is struck.
+					box.edit()
+					# Get resulting contents
+					newname = box.gather().strip()
+					if newname == line['fln']:
+						mva_bottom(stdscr, "no change.")
+					else:
+						old_name = os.path.join(line['phn'], line['fln'])
+						new_name = os.path.join(line['phn'], newname)
+						os.rename(old_name, new_name)
+						rld_lines(stdscr)
+					break
+				elif r_ch == ord('n'):
 					shw_status(stdscr, "file")
 					break
 		elif ch == curses.KEY_F5:
@@ -173,6 +196,14 @@ def del_fcsline():
 
 def exp_line(skp, fcs, pnu, txt, dcr, phn, fln):
 	lines.append({"skp" : skp, "fcs" : fcs, "pnu" : pnu, "txt" : txt, "dcr" : dcr, "phn" : phn, "fln" : fln})
+
+def rld_lines(scr):
+	global lines, pnu
+	lines = []
+	pnu = 0
+	apd_files(DIRS)
+	scr.clear()
+	scrolllines(scr, 0)
 
 def shw_status(stdscr, mode):
 	if mode == "file":
