@@ -150,11 +150,11 @@ def main(stdscr):
 '''
 all the functions & stuff needed in the main program
 '''
-def tnc_filename(filename, max):
-	if (len(filename) >= max):
-		return filename[0:(max-3)] + "..."
+def tnc_line(string, max_len):
+	if (len(string) >= max_len):
+		return string[0:(max_len - 3)] + "..."
 	else:
-		return filename
+		return string
 
 def str_hsize(size):
 	import bisect
@@ -185,7 +185,7 @@ def rld_files(dirs):
 			if os.path.isdir(fn):
 				f_dcr = curses.color_pair(2)
 				pnum = pnu
-			exp_line(False, False, pnum, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(f, 80), str_hsize(os.path.getsize(fn))), f_dcr, path, f)
+			exp_line(False, False, pnum, '{0: ^3} {1:85} {2:7}'.format(i, tnc_line(f, 80), str_hsize(os.path.getsize(fn))), f_dcr, path, f)
 			i += 1
 		pnu += 1
 
@@ -308,7 +308,7 @@ def scrolllines(scr, step):
                 	scr.addstr(y, 0, "{0:3} {1:300} , {}".format(t, lines[i]['txt'], offsets[0]), t_dcr)
 		else:
 			w = yx[1] - 5
-			scr.addstr(y, 0, "{0:3} {1} , {2}".format(t, tnc_filename(lines[i]['txt'], w), offsets[0]), t_dcr)
+			scr.addstr(y, 0, "{0:3} {1} , {2}".format(t, tnc_line(lines[i]['txt'], w), offsets[0]), t_dcr)
                 y += 1
 
 wrapper(main)
