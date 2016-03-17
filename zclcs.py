@@ -253,7 +253,7 @@ def mva_bottom(scr, txt):
 	for i in range(0, yx[1] - 1):
 		l += " "
 	scr.addstr(yx[0] - 1, 0, l)
-	scr.addstr(yx[0] - 1, 0, txt, curses.A_REVERSE)
+	scr.addstr(yx[0] - 1, 0, tnc_line(txt, yx[1] - 1), curses.A_REVERSE)
 
 def mvfcs(step):
         global fcsidx, lines
@@ -305,10 +305,10 @@ def scrolllines(scr, step):
 			t_dcr = curses.A_BOLD
 		scr.addstr(y, 0, l)
 		if yx[1] > (300 - 5):
-                	scr.addstr(y, 0, "{0:3} {1:300} , {}".format(t, lines[i]['txt'], offsets[0]), t_dcr)
+                	scr.addstr(y, 0, "{0:3} {1:300}".format(t, lines[i]['txt']), t_dcr)
 		else:
 			w = yx[1] - 5
-			scr.addstr(y, 0, "{0:3} {1} , {2}".format(t, tnc_line(lines[i]['txt'], w), offsets[0]), t_dcr)
+			scr.addstr(y, 0, "{0:3} {1}".format(t, tnc_line(lines[i]['txt'], w)), t_dcr)
                 y += 1
 
 wrapper(main)
