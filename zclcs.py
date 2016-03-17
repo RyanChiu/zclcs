@@ -18,10 +18,11 @@ for item in items:
 '''
 all kinds of defines in the program
 '''
-lines = []
 offsets = [0, 0]
+lines = []
 fcsidx = -1
 pnu = 0 #PATH NUMBER
+vpaths = [] #VISITED PATHS LIST
 
 '''
 the main pgrogram here
@@ -29,12 +30,13 @@ the main pgrogram here
 def main(stdscr):
 	curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
 	curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+	curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK)
 
 	# clear screen
 	stdscr.clear()
 
 	# do the show off stuff below
-	apd_files(DIRS)
+	rld_files(DIRS)
 
 	scrolllines(stdscr, 0)
 
@@ -92,7 +94,7 @@ def main(stdscr):
 						mva_bottom(stdscr, "move into \"{}\", y/n?".format(plines[sidx]["phn"]))
 				elif m_ch == ord('y'):
 					shutil.move(fn, plines[sidx]["phn"])
-					rld_lines(stdscr)
+					rfs_screen(stdscr)
 					break
 				elif m_ch == ord('n'):
 					mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.")
@@ -122,17 +124,26 @@ def main(stdscr):
 						old_name = os.path.join(line['phn'], line['fln'])
 						new_name = os.path.join(line['phn'], newname)
 						os.rename(old_name, new_name)
-						rld_lines(stdscr)
+						rfs_screen(stdscr)
 					break
 				elif r_ch == ord('n'):
 					shw_status(stdscr, "file")
 					break
 		elif ch == curses.KEY_F5:
+			stdscr.clear()
 			scrolllines(stdscr, 0)
 		elif ch == ord('?'):
 			mva_bottom(stdscr, "'u'/'j' to select,'d' to remove,'m' to move,F5 to refresh,'?' to help,'q' to quit.")
 		elif ch in (curses.KEY_ENTER, 10):
-			continue
+			if not fn:
+				continue
+			if line['pnu'] != -1:
+				vpath = os.path.join(line['phn'], line['fln'])
+				psh_vpath(vpath)
+				rfs_screen(stdscr)
+		elif ch == curses.KEY_BACKSPACE:
+			pop_vpath()
+			rfs_screen(stdscr)
 		else:
                         continue
 
@@ -156,8 +167,12 @@ def str_hsize(size):
 		b, u = d[index]
 	return str(round(size / (b+1), 2)) + u
 
-def apd_files(dirs):
-	global pnu
+def rld_files(dirs):
+	global offsets, lines, pnu, fcsidx
+	offsets = [0, 0]
+	lines = []
+	pnu = 0
+	fcsidx = -1
 	for path in dirs:
 		files = os.listdir(path)
 		exp_line(True, False, pnu, "#{0} in path [{1}]:".format(pnu, path), curses.color_pair(1), path, "")
@@ -165,10 +180,12 @@ def apd_files(dirs):
 		i = 0
 		for f in files:
 			fn = os.path.join(path, f)
-			f_dcr = 0
+			f_dcr = curses.color_pair(3)
+			pnum = -1
 			if os.path.isdir(fn):
 				f_dcr = curses.color_pair(2)
-			exp_line(False, False, pnu, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(f, 80), str_hsize(os.path.getsize(fn))), f_dcr, path, f)
+				pnum = pnu
+			exp_line(False, False, pnum, '{0: ^3} {1:85} {2:7}'.format(i, tnc_filename(f, 80), str_hsize(os.path.getsize(fn))), f_dcr, path, f)
 			i += 1
 		pnu += 1
 
@@ -197,13 +214,29 @@ def del_fcsline():
 def exp_line(skp, fcs, pnu, txt, dcr, phn, fln):
 	lines.append({"skp" : skp, "fcs" : fcs, "pnu" : pnu, "txt" : txt, "dcr" : dcr, "phn" : phn, "fln" : fln})
 
-def rld_lines(scr):
-	global lines, pnu
-	lines = []
-	pnu = 0
-	apd_files(DIRS)
+def rfs_screen(scr):
+	global vpaths
+	if vpaths != []:
+		dirs = []
+		dirs.append(vpaths[len(vpaths) - 1])
+		rld_files(dirs)
+	else:
+		rld_files(DIRS)
 	scr.clear()
 	scrolllines(scr, 0)
+
+def psh_vpath(path):
+	global vpaths
+	vpaths.append(path)
+
+def pop_vpath():
+	global vpaths
+	if vpaths != []:
+		vpath = vpaths[len(vpaths) - 1]
+		del vpaths[len(vpaths) - 1]
+		return vpath
+	else:
+		return ""
 
 def shw_status(stdscr, mode):
 	if mode == "file":
@@ -214,16 +247,16 @@ def shw_status(stdscr, mode):
 	elif mode == "":
 		return
 
-def mva_bottom(stdscr, txt):
-	yx = stdscr.getmaxyx()
+def mva_bottom(scr, txt):
+	yx = scr.getmaxyx()
 	l = ""
 	for i in range(0, yx[1] - 1):
 		l += " "
-	stdscr.addstr(yx[0] - 1, 0, l)
-	stdscr.addstr(yx[0] - 1, 0, txt, curses.A_REVERSE)
+	scr.addstr(yx[0] - 1, 0, l)
+	scr.addstr(yx[0] - 1, 0, txt, curses.A_REVERSE)
 
 def mvfcs(step):
-        global fcsidx
+        global fcsidx, lines
         fcsidx += step
         while fcsidx >= 0 and fcsidx < len(lines) and lines[fcsidx]['skp']:
                 if step < 0:
@@ -237,6 +270,7 @@ def mvfcs(step):
         setfcsline(fcsidx)
 
 def setfcsline(idx):
+	global lines
         i = 0
         for line in lines:
                 if i == idx:
@@ -246,30 +280,35 @@ def setfcsline(idx):
                 i += 1
 
 def scrolllines(scr, step):
+	global offsets, lines
         yx = scr.getmaxyx()
-        offsets[0] -= step
+	l = ""
+	for x in range(0, yx[1] - 1):
+		l += " "
+	offsets[0] -= step
         if offsets[0] < 0:
-                offsets[0] += step
-        elif offsets[0] > len(lines):
+                offsets[0] = 0
+        elif offsets[0] >= len(lines):
                 offsets[0] = len(lines) - 1
-        elif (len(lines) - offsets[0]) < yx[0]:
-                offsets[0] += step
-        h = offsets[0] + yx[0]
-        if h > len(lines):
-                h = len(lines) - offsets[0]
-	h -= 1
+        end = offsets[0] + yx[0] - 1
+        if end >= len(lines):
+                end = len(lines)
+		offsets[0] = end - yx[0] + 1
+		if offsets[0] < 0:
+			offsets[0] = 0
         y = 0
-        for i in range(offsets[0], h):
+        for i in range(offsets[0], end):
                 t = ""
 		t_dcr = lines[i]['dcr']
                 if lines[i]['fcs']:
                         t = "[*]"
 			t_dcr = curses.A_BOLD
+		scr.addstr(y, 0, l)
 		if yx[1] > (300 - 5):
-                	scr.addstr(y, 0, "{0:3} {1:300}".format(t, lines[i]['txt']), t_dcr)
+                	scr.addstr(y, 0, "{0:3} {1:300} , {}".format(t, lines[i]['txt'], offsets[0]), t_dcr)
 		else:
 			w = yx[1] - 5
-			scr.addstr(y, 0, "{0:3} {1}".format(t, tnc_filename(lines[i]['txt'], w)), t_dcr)
+			scr.addstr(y, 0, "{0:3} {1} , {2}".format(t, tnc_filename(lines[i]['txt'], w), offsets[0]), t_dcr)
                 y += 1
 
 wrapper(main)
