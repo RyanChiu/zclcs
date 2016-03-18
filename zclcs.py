@@ -133,7 +133,7 @@ def main(stdscr):
 			stdscr.clear()
 			scrolllines(stdscr, 0)
 		elif ch == ord('?'):
-			mva_bottom(stdscr, "'u'/'j' to select,'d' to remove,'m' to move,F5 to refresh,'?' to help,'q' to quit.")
+			mva_bottom(stdscr, "'u'/'j' to select,'d' to remove,'m' to move,ENTER into a folder,F5 to refresh,'?' to help,'q' to quit.")
 		elif ch in (curses.KEY_ENTER, 10):
 			if not fn:
 				continue
@@ -176,7 +176,7 @@ def rld_files(dirs):
 	for path in dirs:
 		files = os.listdir(path)
 		exp_line(True, False, pnu, "#{0} in path [{1}]:".format(pnu, path), curses.color_pair(1), path, "")
-		exp_line(True, False, -1, '{0: ^3} {1:85} {2:7}'.format("#", "file name", "size"), curses.A_UNDERLINE, "", "")
+		exp_line(True, False, -1, '{0: ^3} {1:7} {2:101}'.format("#", "size", "file name"), curses.A_UNDERLINE, "", "")
 		i = 0
 		for f in files:
 			fn = os.path.join(path, f)
@@ -185,7 +185,7 @@ def rld_files(dirs):
 			if os.path.isdir(fn):
 				f_dcr = curses.color_pair(2)
 				pnum = pnu
-			exp_line(False, False, pnum, '{0: ^3} {1:85} {2:7}'.format(i, tnc_line(f, 80), str_hsize(os.path.getsize(fn))), f_dcr, path, f)
+			exp_line(False, False, pnum, '{0: ^3} {1:7} {2:101}'.format(i, str_hsize(os.path.getsize(fn)), tnc_line(f, 96)), f_dcr, path, f)
 			i += 1
 		pnu += 1
 
