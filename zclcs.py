@@ -202,7 +202,7 @@ def del_line(idx):
 
 def del_fcsline():
 	del_line(get_fidx())
-	mvfcs(1)
+	mvfcs(-1)
 
 def exp_line(skp, fcs, pnu, txt, dcr, phn, fln):
 	lines.append({"skp" : skp, "fcs" : fcs, "pnu" : pnu, "txt" : txt, "dcr" : dcr, "phn" : phn, "fln" : fln})
