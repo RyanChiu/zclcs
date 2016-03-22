@@ -232,6 +232,7 @@ def rfs_screen(scr):
 	else:
 		rld_files(DIRS)
 	scr.clear()
+	mvfcs(0)
 	scrolllines(scr, 0)
 
 def psh_vpath(path, fidx):
@@ -270,7 +271,7 @@ def mvfcs(step):
 	fidx = get_fidx()
         fidx += step
         while fidx >= 0 and fidx < len(lines) and lines[fidx]['skp']:
-                if step < 0:
+                if step <= 0:
                         fidx -= 1
                 elif step > 0:
                         fidx += 1
