@@ -8,12 +8,22 @@ from curses.textpad import Textbox
 DIRS = []
 if (len(sys.argv) == 1):
 	config = ConfigParser.ConfigParser()
-	config.read("./zclcs.conf")
+	config.read("./.conf")
 	items = config.items("DIRS")
 	for item in items:
 		DIRS.append(item[1])
 else:
-	DIRS.append(sys.argv[1])
+	if sys.argv[1] != "?" and sys.argv[1] != "--help":
+		DIRS.append(sys.argv[1])
+	else:
+		print("Programmed by Ryan Chiu.\n")
+		print("****************************************************")
+		print("{} will read '.conf' file by default, which contains all the paths that need to be shown.".format(sys.argv[0]))
+		print("And this '.conf' file must list the paths under '[DIRS]' like this: '0:full path name', one path a line.")
+		print("If with a parameter, then it should be a full path name, like '/mnt/harddisk01'.\n")
+		print("When getting into it, type ? for how to operate.")
+		print("****************************************************")
+		exit()
 
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
