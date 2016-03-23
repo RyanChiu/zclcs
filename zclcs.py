@@ -5,15 +5,18 @@ import os, sys, locale, curses, shutil, ConfigParser
 from curses import wrapper
 from curses.textpad import Textbox
 
+DIRS = []
+if (len(sys.argv) == 1):
+	config = ConfigParser.ConfigParser()
+	config.read("./zclcs.conf")
+	items = config.items("DIRS")
+	for item in items:
+		DIRS.append(item[1])
+else:
+	DIRS.append(sys.argv[1])
+
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
-
-config = ConfigParser.ConfigParser()
-config.read("./zclcs.conf")
-items = config.items("DIRS")
-DIRS = []
-for item in items:
-	DIRS.append(item[1])
 
 '''
 all kinds of defines in the program
