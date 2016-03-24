@@ -12,6 +12,9 @@ if (len(sys.argv) == 1):
 	items = config.items("DIRS")
 	for item in items:
 		DIRS.append(item[1])
+	if (len(DIRS) > 10):
+		print("Only support 10 folders top, please check out the .conf file for sure.")
+		exit()
 else:
 	if sys.argv[1] != "?" and sys.argv[1] != "--help":
 		DIRS.append(sys.argv[1])
@@ -34,7 +37,6 @@ all kinds of defines in the program
 offsets = [0, 0]
 lines = []
 fcsidx = -1
-pnu = 0 #PATH NUMBER
 vpaths = [] #VISITED PATHS LIST
 
 '''
@@ -91,20 +93,21 @@ def main(stdscr):
 		elif ch == ord('m'):
 			if not fn:
 				continue
-			mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.", curses.A_REVERSE)
+			mva_bottom(stdscr, "please hit the char(in pn col) of the path to move into, or 'c' to cancel out.", curses.A_REVERSE)
+			m_phn = ""
 			while True:
 				m_ch = stdscr.getch()
-				if m_ch >= ord('0') and m_ch <= ord('9'):
-					plines = get_pthlines()
-					sidx = int(m_ch) - 48
-					if sidx < len(plines):
-						mva_bottom(stdscr, "move into \"{}\", y/n?".format(plines[sidx]["phn"]), curses.A_REVERSE)
-				elif m_ch == ord('y'):
-					shutil.move(fn, plines[sidx]["phn"])
+				m_line = get_pthline(m_ch)
+				if m_line != {}:
+					m_phn = os.path.join(m_line["phn"], m_line["fln"])
+					mva_bottom(stdscr, "move into \"{}\", y/n?".format(m_phn), curses.A_REVERSE)
+				elif m_ch == ord('y') and m_phn != "":
+					shutil.move(fn, m_phn) 
 					rfs_screen(stdscr)
 					break
 				elif m_ch == ord('n'):
-					mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.", curses.A_REVERSE)
+					m_phn = ""
+					mva_bottom(stdscr, "please hit the char(in pn col) of the path to move into, or 'c' to cancel out.", curses.A_REVERSE)
 				elif m_ch == ord('c'):
 					shw_status(stdscr, "file")
 					break
@@ -175,29 +178,53 @@ def str_hsize(size):
 	return str(round(size / (b+1), 2)) + u
 
 def rld_files(dirs):
-	global offsets, lines, pnu
+	global offsets, lines
 	offsets = [0, 0]
 	lines = []
-	pnu = 0
+	pch = ord('0')
+	pnum = 0
 	for path in dirs:
 		files = os.listdir(path)
-		exp_line(True, False, pnu, "#{0} in path [{1}]:".format(pnu, path), curses.color_pair(1), path, "")
-		exp_line(True, False, -1, '{0: ^3} {1:7} {2:101}'.format("#", "size", "file name"), curses.A_UNDERLINE, "", "")
+		exp_line(True, False, pch, "{0} [in path {1}]:".format(chr(pch), path), curses.color_pair(1), path, "")
+		exp_line(True, False, -1, '{0:2} {1: ^3} {2:7} {3:101}'.format("pn", "num", "size", "file name"), curses.A_UNDERLINE, "", "")
 		i = 0
 		for f in files:
 			fn = os.path.join(path, f)
 			f_dcr = curses.color_pair(3)
-			pnum = -1
+			pnv = -1
 			if os.path.isdir(fn):
 				f_dcr = curses.color_pair(2)
-				pnum = pnu
-			exp_line(False, False, pnum, '{0: ^3} {1:7} {2:101}'.format(i, str_hsize(os.path.getsize(fn)), tnc_line(f, 101)), f_dcr, path, f)
+				pnv = get_fldrch(pnum)
+				pnum += 1
+			pnc = ""
+			if pnv != -1:
+				pnc = chr(pnv)
+			exp_line(False, False, pnv, '{0:2} {1: ^3} {2:7} {3:101}'.format(pnc, i, str_hsize(os.path.getsize(fn)), tnc_line(f, 101)), f_dcr, path, f)
 			i += 1
-		pnu += 1
+		pch += 1
 
 def get_fcsline():
 	for line in lines:
 		if line['fcs'] and not line['skp']:
+			return line
+	return {}
+
+def get_fldrch(i):
+	avoidchs = ['y', 'n', 'c']
+	chs = []
+	for ch in range(ord('a'), ord('z') + 1):
+		if chr(ch) not in avoidchs:
+			chs.append(chr(ch))
+	for ch in range(ord('A'), ord('Z') + 1):
+		if chr(ch) not in avoidchs:
+			chs.append(chr(ch))
+	if i < 0 or i >= len(chs): 
+		return -1
+	return ord(chs[i])
+
+def get_pthline(chv):
+	for line in lines:
+		if line['pnu'] == chv:
 			return line
 	return {}
 
