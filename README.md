@@ -16,19 +16,19 @@ When getting into it, type "?" for how to operate.
 
 The TUI should be like this:<br/>
 
-		#0 in path [/var]:
-		#  size    file name
-		0  4.0K    backups
-		1  4.0K    spool
-		2  4.0K    cache
-		3  4.0K    lib
-		4  4.0K    opt
-		5  4.0K    local
-		6  40.0    lock
-		7  4.0K    mail
-		8  900.0   run
-		9  4.0K    tmp
-		10  4.0K    log
-		11  100.0M  swap
+		   #0 in path [/var]:
+		   #  size    file name
+		   0  4.0K    backups
+		[*]1  4.0K    spool
+		   2  4.0K    cache
+		   3  4.0K    lib
+		   4  4.0K    opt
+		   5  4.0K    local
+		   6  40.0    lock
+		   7  4.0K    mail
+		   8  900.0   run
+		   9  4.0K    tmp
+		   10  4.0K    log
+		   11  100.0M  swap
 		
 		'u'/'j' to select,'d' to remove,'m' to move,ENTER into a folder,F5 to refresh,'?' to help,'q' to quit.
