@@ -14,7 +14,7 @@ With "?" or "--help" to get the above info.
 When getting into it, type "?" for how to operate.
 ################################################################################
 
-The TUI should be like this:
+The TUI should be like this:<br/>
 		#0 in path [/var]:
 		#  size    file name
 		0  4.0K    backups
