@@ -15,6 +15,7 @@ When getting into it, type "?" for how to operate.
 ################################################################################
 
 The TUI should be like this:<br/>
+
 		#0 in path [/var]:
 		#  size    file name
 		0  4.0K    backups
@@ -29,5 +30,5 @@ The TUI should be like this:<br/>
 		9  4.0K    tmp
 		10  4.0K    log
 		11  100.0M  swap
-
+		
 		'u'/'j' to select,'d' to remove,'m' to move,ENTER into a folder,F5 to refresh,'?' to help,'q' to quit.
