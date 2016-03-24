@@ -31,4 +31,4 @@ The TUI should be like this:<br/>
 		   10  4.0K    log
 		   11  100.0M  swap
 		
-		'u'/'j' to select,'d' to remove,'m' to move,ENTER into a folder,F5 to refresh,'?' to help,'q' to quit.
+		'u'/'j' to select,'d' to remove,'m' to move,ENTER into a folder,UP/DW to scroll,F5 to refresh,'?' to help,'q' to quit.

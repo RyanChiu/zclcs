@@ -21,7 +21,7 @@ else:
 		print("{} will read '.conf' file by default, which contains all the paths that need to be shown.".format(sys.argv[0]))
 		print("And this '.conf' file must list the paths under '[DIRS]' like this: '0:full path name', one path a line.")
 		print("If with a parameter, then it should be a full path name, like '/mnt/harddisk01'.\n")
-		print("When getting into it, type ? for how to operate.")
+		print("When getting into it, type '?' for how to operate.")
 		print("****************************************************")
 		exit()
 
@@ -140,7 +140,7 @@ def main(stdscr):
 			stdscr.clear()
 			scrolllines(stdscr, 0)
 		elif ch == ord('?'):
-			mva_bottom(stdscr, "'u'/'j' to select,'d' to remove,'m' to move,ENTER into a folder,F5 to refresh,'?' to help,'q' to quit.")
+			mva_bottom(stdscr, "'u'/'j' to select,'d' to remove,'m' to move,ENTER into a folder,UP/DW to scroll,F5 to refresh,'?' to help,'q' to quit.")
 		elif ch in (curses.KEY_ENTER, 10):
 			if not fn:
 				continue
