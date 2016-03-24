@@ -1,9 +1,8 @@
-# zclcs
-Programmed by Ryan Chiu.
+<b>Programmed by Ryan Chiu.</b>
 
-1st. of all, this is a little tool to manage files from different directories, try to put the views together.
-2nd., it could let you remove/rename/move the file in the view you pre-defined (and now could follow one path parameter).
-3rd., it has no multi-thread stuff there, so, some time you need to wait for a long term action, such as copy/move/delete a big file etc..
+1st. of all, this is a little tool to manage files from different directories, try to put the views together.<br/>
+2nd., it could let you remove/rename/move a file in the view you pre-defined (and now could follow one path parameter).<br/>
+3rd., it has no multi-thread stuff there, so, some time you need to wait for a long term action, such as copy/move/delete a big file etc..<br/>
 4th., please, use it for "not that many files" situation there.
 
 ################################################################################
