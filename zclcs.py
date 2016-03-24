@@ -70,7 +70,7 @@ def main(stdscr):
 		elif ch == ord('d'):
 			if not fn:
 				continue
-			mva_bottom(stdscr, "delete it, y/n?")
+			mva_bottom(stdscr, "delete it, y/n?", curses.A_REVERSE)
 			while True:
 				d_ch = stdscr.getch()
 				if d_ch == ord('y'):
@@ -87,37 +87,37 @@ def main(stdscr):
 					shw_status(stdscr, "file")
 					break
 				else:
-					mva_bottom(stdscr, "please enter y to make sure, or n to cancel it.")
+					mva_bottom(stdscr, "please enter y to make sure, or n to cancel it.", curses.A_REVERSE)
 		elif ch == ord('m'):
 			if not fn:
 				continue
-			mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.")
+			mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.", curses.A_REVERSE)
 			while True:
 				m_ch = stdscr.getch()
 				if m_ch >= ord('0') and m_ch <= ord('9'):
 					plines = get_pthlines()
 					sidx = int(m_ch) - 48
 					if sidx < len(plines):
-						mva_bottom(stdscr, "move into \"{}\", y/n?".format(plines[sidx]["phn"]))
+						mva_bottom(stdscr, "move into \"{}\", y/n?".format(plines[sidx]["phn"]), curses.A_REVERSE)
 				elif m_ch == ord('y'):
 					shutil.move(fn, plines[sidx]["phn"])
 					rfs_screen(stdscr)
 					break
 				elif m_ch == ord('n'):
-					mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.")
+					mva_bottom(stdscr, "please hit the number(#x) of the path to move into, or 'c' to cancel out.", curses.A_REVERSE)
 				elif m_ch == ord('c'):
 					shw_status(stdscr, "file")
 					break
 		elif ch == ord('r'):
 			if not fn:
 				continue
-			mva_bottom(stdscr, "rename it, y/n?(if yes, then edit the new name and fire it with ctrl+g when it's done.)")
+			mva_bottom(stdscr, "rename it, y/n?(if yes, then edit the new name and fire it with ctrl+g when it's done.)", curses.A_REVERSE)
 			while True:
 				r_ch = stdscr.getch()
 				if r_ch == ord('y'):
 					r_title = "new name:"
 					yx = stdscr.getmaxyx()
-					mva_bottom(stdscr, r_title)
+					mva_bottom(stdscr, r_title, curses.A_REVERSE)
 					editwin = curses.newwin(1, yx[1] - len(r_title) - 1, yx[0] - 1, len(r_title) + 1)
 					stdscr.refresh()
 					box = Textbox(editwin)
@@ -126,7 +126,7 @@ def main(stdscr):
 					# Get resulting contents
 					newname = box.gather().strip()
 					if newname == line['fln']:
-						mva_bottom(stdscr, "no change.")
+						mva_bottom(stdscr, "no change.", curses.A_REVERSE)
 					else:
 						old_name = os.path.join(line['phn'], line['fln'])
 						new_name = os.path.join(line['phn'], newname)
@@ -140,7 +140,7 @@ def main(stdscr):
 			stdscr.clear()
 			scrolllines(stdscr, 0)
 		elif ch == ord('?'):
-			mva_bottom(stdscr, "'u'/'j' to select,'d' to remove,'m' to move,ENTER into a folder,UP/DW to scroll,F5 to refresh,'?' to help,'q' to quit.")
+			mva_bottom(stdscr, "u/j to select,d to remove,m to move,ENTER into a folder,UP/DW to scroll,F5 to refresh,? to help,q to quit.", curses.A_REVERSE)
 		elif ch in (curses.KEY_ENTER, 10):
 			if not fn:
 				continue
@@ -267,17 +267,17 @@ def shw_status(stdscr, mode):
 		if get_fidx() < 0 or get_fidx() >= len(lines):
 			return
 		line = get_fcsline()
-		mva_bottom(stdscr, "\"{}\"".format(os.path.join(line['phn'], line['fln'])))
+		mva_bottom(stdscr, "\"{}\"".format(os.path.join(line['phn'], line['fln'])), curses.A_REVERSE)
 	elif mode == "":
 		return
 
-def mva_bottom(scr, txt):
+def mva_bottom(scr, txt, dcr):
 	yx = scr.getmaxyx()
 	l = ""
 	for i in range(0, yx[1] - 1):
 		l += " "
 	scr.addstr(yx[0] - 1, 0, l)
-	scr.addstr(yx[0] - 1, 0, tnc_line(txt, yx[1] - 1), curses.A_REVERSE)
+	scr.addstr(yx[0] - 1, 0, tnc_line(txt, yx[1] - 1), dcr)
 
 def mvfcs(step):
         global lines
@@ -336,5 +336,13 @@ def scrolllines(scr, step):
 			w = yx[1] - 5
 			scr.addstr(y, 0, "{0:3} {1}".format(t, tnc_line(lines[i]['txt'], w)), t_dcr)
                 y += 1
+	
+	#show scrolling info at the bottom
+	sclt = "scrl~top:{0},bot:{1}".format(offsets[0], len(lines) - offsets[0] - yx[0] + 1)
+	l = ""
+	for i in range(0, yx[1] - len(sclt) - 3):
+		l += " "
+	l += sclt
+	mva_bottom(scr, l, curses.A_NORMAL)
 
 wrapper(main)
