@@ -178,8 +178,7 @@ def str_hsize(size):
 	return str(round(size / (b+1), 2)) + u
 
 def rld_files(dirs):
-	global offsets, lines
-	offsets = [0, 0]
+	global lines
 	lines = []
 	pch = ord('0')
 	pnum = 0
