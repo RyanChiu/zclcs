@@ -93,7 +93,8 @@ def main(stdscr):
 		elif ch == ord('m'):
 			if not fn:
 				continue
-			mva_bottom(stdscr, "please hit the char(in pn col) of the path to move into, or 'c' to cancel out.", curses.A_REVERSE)
+			m_tips = "please hit the char(in pn col) of the path or UP to move into, or 'c' to cancel out."
+			mva_bottom(stdscr, m_tips, curses.A_REVERSE)
 			m_phn = ""
 			while True:
 				m_ch = stdscr.getch()
@@ -107,7 +108,7 @@ def main(stdscr):
 					break
 				elif m_ch == ord('n'):
 					m_phn = ""
-					mva_bottom(stdscr, "please hit the char(in pn col) of the path to move into, or 'c' to cancel out.", curses.A_REVERSE)
+					mva_bottom(stdscr, m_tips, curses.A_REVERSE)
 				elif m_ch == ord('c'):
 					shw_status(stdscr, "file")
 					break
@@ -224,7 +225,12 @@ def get_fldrch(i):
 
 def get_pthline(chv):
 	if (chv == curses.KEY_UP):
-		return {}
+		if len(vpaths) > 1:
+			return {"phn" : vpaths[len(vpaths) - 2]["path"], "fln" : ""}
+		elif len(vpaths) == 1:
+			return {"phn" : os.path.dirname(vpaths[0]["path"]), "fln" : ""}
+		else:
+			return {}
 	for line in lines:
 		if line['pnu'] == chv:
 			return line
