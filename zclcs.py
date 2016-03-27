@@ -184,6 +184,7 @@ def rld_files(dirs):
 	pnum = 0
 	for path in dirs:
 		files = os.listdir(path)
+		files = sorted(files, key = lambda f:f, reverse = False)
 		exp_line(True, False, pch, "{0} [in path {1}]:".format(chr(pch), path), curses.color_pair(1), path, "")
 		exp_line(True, False, -1, '{0:2} {1: ^3} {2:7} {3:101}'.format("pn", "num", "size", "file name"), curses.A_UNDERLINE, "", "")
 		i = 0
