@@ -223,17 +223,12 @@ def get_fldrch(i):
 	return ord(chs[i])
 
 def get_pthline(chv):
+	if (chv == curses.KEY_UP):
+		return {}
 	for line in lines:
 		if line['pnu'] == chv:
 			return line
 	return {}
-
-def get_pthlines():
-	plines = []
-	for line in lines:
-		if line['pnu'] != -1 and line['phn'] != "" and line['fln'] == "":
-			plines.append(line)
-	return plines
 
 def del_line(idx):
 	if idx < 0 and idx >= (len(lines) - 1):
