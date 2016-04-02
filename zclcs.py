@@ -8,7 +8,7 @@ from curses.textpad import Textbox
 DIRS = []
 if (len(sys.argv) == 1):
 	config = ConfigParser.ConfigParser()
-	config.read("./.conf")
+	config.read("{}/.conf".format(os.path.dirname(os.path.realpath(sys.argv[0]))))
 	items = config.items("DIRS")
 	for item in items:
 		DIRS.append(item[1])
