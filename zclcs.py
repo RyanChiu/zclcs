@@ -168,15 +168,17 @@ def tnc_line(string, max_len):
 		return string
 
 def str_hsize(size):
-	import bisect
-	d = [(1024-1,'K'), (1024**2-1,'M'), (1024**3-1,'G'), (1024**4-1,'T')]
-	s = [x[0] for x in d]
-	index = bisect.bisect_left(s, size) - 1
-	if index == -1:
-		return str(round(size, 2))
-	else:
-		b, u = d[index]
-	return str(round(size / (b+1), 2)) + u
+    size = float(size)
+    if (size / 1024 < 1):
+        return "1KB"
+    elif (size / (1024 * 1024) < 1):
+        return "{0:.1f}KB".format(size / 1024)
+    elif (size / (1024 * 1024 * 1024) < 1):
+        return "{0:.1f}MB".format(size / (1024 * 1024))
+    elif (size / (1024 * 1024 * 1024 * 1024) < 1):
+        return "{0:.1f}GB".format(size / (1024 * 1024 * 1024))
+    else:
+        return "{0:.1f}TB".format(size / (1024 * 1024 * 1024 * 1024))
 
 def rld_files(dirs):
 	global lines
